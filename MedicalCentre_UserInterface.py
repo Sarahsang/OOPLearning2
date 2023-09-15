@@ -3,79 +3,123 @@
 
 # Importing controller class
 from MedicalCentre_Controller import Clinic, read_doctors_from_file, read_patients_from_file
+from MedicalCentre_ModelClasses import Doctor, Patient, Consultation
+import re
+
+class InvalidIDError(Exception):
+    pass
+
+class NotFoundError(Exception):
+    pass
 
 def assign_doctor_to_patient(clinic):
     print("Assign a Doctor to a Patient")
-    patient_id = int(input("Enter Patient ID: "))
-    doctor_id = int(input("Enter Doctor ID: "))
-    
-    patient = clinic.search_patient_by_id(patient_id)
-    doctor = clinic.search_doctor_by_id(doctor_id)
-    
-    if patient and doctor:
+    try:
+        patient_id = int(input("Enter Patient ID: "))
+        doctor_id = int(input("Enter Doctor ID: "))
+    except ValueError:
+        print("Invalid ID. IDs should be integers.")
+        return
+
+    try:
+        patient = clinic.search_patient_by_id(patient_id)
+        doctor = clinic.search_doctor_by_id(doctor_id)
+        
+        if patient is None or doctor is None:
+            raise NotFoundError("Invalid Doctor or Patient ID.")
+        
         patient.assign_doctor(doctor)
-        print(f"Doctor {doctor.myDoctorFName} {doctor.myDoctorLName} has been assigned to patient {patient.myPatientFName} {patient.myPatientLName}.")
-    else:
-        print("Invalid Doctor or Patient ID.")
+        print(f"Doctor {doctor.get_first_name()} {doctor.get_last_name()} has been assigned to patient {patient.get_first_name()} {patient.get_last_name()}.")
+    except NotFoundError as e:
+        print(e)
+
+
 
 def add_consultation(clinic):
     print("Add a Consultation")
-    patient_id = int(input("Enter Patient ID: "))
-    doctor_id = int(input("Enter Doctor ID: "))
-    date = input("Enter date (dd/mm/yyyy): ")
-    reason = input("Enter reason: ")
-    fee = float(input("Enter fee: "))
     
-    patient = clinic.search_patient_by_id(patient_id)
-    doctor = clinic.search_doctor_by_id(doctor_id)
+    try:
+        patient_id = int(input("Enter Patient ID: "))
+        doctor_id = int(input("Enter Doctor ID: "))
+    except ValueError:
+        print("Invalid ID. IDs should be integers.")
+        return
     
-    if patient and doctor:
-        consultation = Consultation(date, doctor, patient, reason, fee)
+    try:
+        date = input("Enter date (dd/mm/yyyy): ")
+        if not re.match(r'\d{2}/\d{2}/\d{4}', date):
+            raise ValueError("Invalid date format.")
+        
+        time = input("Enter time (hh:mm AM/PM): ")
+        if not re.match(r'(?:[01]\d|2[0-3]):[0-5]\d [APap][Mm]', time):
+            raise ValueError("Invalid time format.")
+        
+        reason = input("Enter reason: ")
+        fee = float(input("Enter fee: "))
+        
+        patient = clinic.search_patient_by_id(patient_id)
+        doctor = clinic.search_doctor_by_id(doctor_id)
+        
+        if patient is None or doctor is None:
+            raise NotFoundError("Invalid Doctor or Patient ID.")
+        
+        consultation = Consultation(date, time, doctor, patient, reason, fee)
         clinic.add_consultation(consultation)
         print("Consultation added.")
-    else:
-        print("Invalid Doctor or Patient ID.")
+    except (ValueError, NotFoundError) as e:
+        print(e)
+
+
+
+def get_valid_int_input(prompt):
+    try:
+        return int(input(prompt))
+    except ValueError:
+        print("Invalid input. Please enter an integer.")
+        return None
 
 def view_doctors_info(clinic):
     print("View Doctor's Information")
-    doctor_id = int(input("Enter Doctor ID: "))
-    doctor = clinic.search_doctor_by_id(doctor_id)
+    doctor_id = get_valid_int_input("Enter Doctor ID: ")
     
-    if doctor:
-        print(doctor)
-        print("Patients:")
-        for patient in clinic.myPatients:
-            if patient.myDoctor == doctor:
-                print(patient)
-        print("Consultations:")
-        for consultation in doctor.myDoctorCons:
-            print(consultation)
-    else:
-        print("Invalid Doctor ID.")
+    if doctor_id is not None:
+        doctor = clinic.search_doctor_by_id(doctor_id)
+        if doctor:
+            print(doctor)
+            print("Patients:")
+            for patient in clinic._myPatients:
+                if patient.get_doctor() == doctor:
+                    print(patient)
+            print("Consultations:")
+            for consultation in doctor.get_consultations():
+                print(consultation)
+        else:
+            print("Invalid Doctor ID.")
 
 def view_patients_info(clinic):
     print("View Patient's Information")
-    patient_id = int(input("Enter Patient ID: "))
-    patient = clinic.search_patient_by_id(patient_id)
+    patient_id = get_valid_int_input("Enter Patient ID: ")
     
-    if patient:
-        print(patient)
-        if patient.myDoctor:
-            print(f"Doctor: {patient.myDoctor.myDoctorFName} {patient.myDoctor.myDoctorLName}")
+    if patient_id is not None:
+        patient = clinic.search_patient_by_id(patient_id)
+        if patient:
+            print(patient)
+            if patient.get_doctor():  
+                print(f"Doctor: {patient.get_doctor().get_first_name()} {patient.get_doctor().get_last_name()}")  
+            else:
+                print("No assigned doctor.")
+            print("Consultations:")
+            for consultation in patient.get_consultations():  
+                print(consultation)
         else:
-            print("No assigned doctor.")
-        print("Consultations:")
-        for consultation in patient.myConsultations:
-            print(consultation)
-    else:
-        print("Invalid Patient ID.")
+            print("Invalid Patient ID.")
 
 def view_consultation_report(clinic):
     print("View Consultation Report")
     total_fees = 0
-    for consultation in clinic.myConsultations:
+    for consultation in clinic._myConsultations:  
         print(consultation)
-        total_fees += consultation.myFee
+        total_fees += consultation.get_fee()  
     print(f"Total Fees: ${total_fees}")
 
 def main_menu():

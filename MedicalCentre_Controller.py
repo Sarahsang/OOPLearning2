@@ -6,32 +6,33 @@ from MedicalCentre_ModelClasses import Doctor, Patient, Consultation
 
 class Clinic:
     def __init__(self):
-        self.myDoctors = []  # List of Doctor objects
-        self.myPatients = []  # List of Patient objects
-        self.myConsultations = []  # List of Consultation objects
+        self._myDoctors = []  # List of Doctor objects
+        self._myPatients = []  # List of Patient objects
+        self._myConsultations = []  # List of Consultation objects
     
     def add_doctor(self, doctor):
-        self.myDoctors.append(doctor)
+        self._myDoctors.append(doctor)
         
     def add_patient(self, patient):
-        self.myPatients.append(patient)
+        self._myPatients.append(patient)
         
     def add_consultation(self, consultation):
-        self.myConsultations.append(consultation)
-        consultation.myCDoctor.add_consultation(consultation)  # Add the consultation to the doctor's list
-        consultation.myCPatient.add_consultation(consultation)  # Add the consultation to the patient's list
+        self._myConsultations.append(consultation)
+        consultation.get_doctor().add_consultation(consultation)   # Add the consultation to the doctor's list
+        consultation.get_patient().add_consultation(consultation)  # Add the consultation to the patient's list
         
     def search_doctor_by_id(self, doctor_id):
-        for doctor in self.myDoctors:
-            if doctor.myDoctorID == doctor_id:
+        for doctor in self._myDoctors:
+            if doctor.get_id() == doctor_id:  
                 return doctor
         return None
     
     def search_patient_by_id(self, patient_id):
-        for patient in self.myPatients:
-            if patient.myPatientID == patient_id:
+        for patient in self._myPatients:  
+            if patient.get_id() == patient_id:  
                 return patient
         return None
+
 
 # File Reading Functions
 
