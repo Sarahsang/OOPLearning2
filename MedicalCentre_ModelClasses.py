@@ -28,6 +28,12 @@ class Doctor:
     def get_consultations(self):
         return self._myDoctorCons
     
+    def get_patient_list(self):
+        return [consultation.get_patient() for consultation in self._myDoctorCons]
+    
+    def get_consultation_list(self):
+        return self._myDoctorCons
+
     # Setter methods
     def set_first_name(self, first_name):
         self._myDoctorFName = first_name
@@ -45,7 +51,7 @@ class Doctor:
         return f"{self._myDoctorID} {self._myDoctorFName} {self._myDoctorLName} {self._myDoctorSpec}"
 
 class Patient:
-    nextID = 100  # Class variable for generating unique IDs
+    nextID = 1000  # Class variable for generating unique IDs
     
     def __init__(self, first_name, last_name):
         self._myPatientFName = first_name  
@@ -67,6 +73,9 @@ class Patient:
     
     def get_doctor(self):
         return self._myDoctor
+    
+    def get_consultation_list(self):
+        return self._myConsultations
     
     # Setter methods
     def set_first_name(self, first_name):

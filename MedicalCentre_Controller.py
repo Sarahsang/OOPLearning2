@@ -32,7 +32,36 @@ class Clinic:
             if patient.get_id() == patient_id:  
                 return patient
         return None
+    
+    def get_patient_list_by_doctor(self, doctor_id):
+        doctor = self.search_doctor_by_id(doctor_id)
+        if doctor:
+            return doctor.get_patient_list()
+        return []
 
+    def get_consultation_list_by_doctor(self, doctor_id):
+        doctor = self.search_doctor_by_id(doctor_id)
+        if doctor:
+            return doctor.get_consultation_list()
+        return []
+
+    def get_consultation_list_by_patient(self, patient_id):
+        patient = self.search_patient_by_id(patient_id)
+        if patient:
+            return patient.get_consultation_list()
+        return []
+
+    def get_consults_by_doctor(self, doctor_id):
+        doctor = self.search_doctor_by_id(doctor_id)
+        if doctor:
+            return doctor.get_consultations()
+        return []
+
+    def get_consults_by_patient(self, patient_id):
+        patient = self.search_patient_by_id(patient_id)
+        if patient:
+            return [consult for consult in self._myConsultations if consult.get_patient() == patient]
+        return []
 
 # File Reading Functions
 
