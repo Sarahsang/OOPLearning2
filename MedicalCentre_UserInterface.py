@@ -15,6 +15,8 @@ class MedicalCentreApp:
         master.title("Medical Centre Management System")
         
         # Initialize the clinic and read data from files
+        # (filename, clinic)里的clinic就是self.clinic，
+        # 而 self.clinic = Clinic()，所以clinic.add_doctor(doctor) 就是 Clinic.add_doctor()
         self.clinic = Clinic()
         read_doctors_from_file("resource/Doctor.txt", self.clinic)
         read_patients_from_file("resource/Patient.txt", self.clinic)
